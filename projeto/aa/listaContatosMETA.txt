@@ -1,0 +1,508 @@
+//Arquivo listaContatos.c
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "listaContatos.h"
+
+
+struct elemento
+{
+    CLIENTE dados;
+    struct elemento *prox;
+};
+
+typedef struct elemento ELEM;
+
+
+/*
+    Cria a cabeca da Lista Dinamica.
+
+    A cabeca da lista e um ponteiro para ponteiro.
+    Inicialmente, a lista aponta para NULL, pois ainda
+    nao possui nenhum elemento.
+*/
+Lista *criaLista()
+{
+    Lista *li;
+
+    li = (Lista *) malloc(sizeof(Lista));
+
+    if(li != NULL)
+    {
+        *li = NULL;
+    }
+
+    return li;
+}
+
+
+/*
+    Encerra o programa quando a cabeca da lista
+    nao foi alocada corretamente.
+*/
+void abortaPrograma()
+{
+    printf("ERRO! Lista nao foi alocada.");
+    printf("\nPrograma sera encerrado...\n\n");
+
+    system("pause");
+    exit(1);
+}
+
+
+/*
+    Libera todos os elementos armazenados na lista.
+
+    A cada repeticao, o primeiro elemento e armazenado
+    em no, a cabeca avanca e o elemento e liberado.
+    Ao final, a cabeca da lista tambem e liberada.
+*/
+void apagaLista(Lista *li)
+{
+    if(li != NULL)
+    {
+        ELEM *no;
+
+        while((*li) != NULL)
+        {
+            no = *li;
+            *li = (*li)->prox;
+            free(no);
+        }
+
+        free(li);
+    }
+}
+
+
+/*
+    Percorre toda a lista e retorna a quantidade
+    de elementos armazenados.
+*/
+int tamanhoLista(Lista *li)
+{
+    if(li == NULL)
+    {
+        abortaPrograma();
+    }
+
+    int acum = 0;
+    ELEM *no = *li;
+
+    while(no != NULL)
+    {
+        acum++;
+        no = no->prox;
+    }
+
+    return acum;
+}
+
+
+/*
+    Em uma Lista Dinamica nao existe um tamanho
+    maximo predefinido. Por isso, a funcao sempre
+    retorna zero.
+*/
+int listaCheia(Lista *li)
+{
+    if(li == NULL)
+    {
+        abortaPrograma();
+    }
+
+    return 0;
+}
+
+
+/*
+    Retorna 1 quando a lista esta vazia e
+    retorna 0 quando existe algum elemento.
+*/
+int listaVazia(Lista *li)
+{
+    if(li == NULL)
+    {
+        abortaPrograma();
+    }
+
+    if(*li == NULL)
+    {
+        return 1;
+    }
+
+    return 0;
+}
+
+
+/*
+    Insere um cliente em ordem crescente de codigo.
+
+    Antes da alocacao do novo elemento, a lista e
+    percorrida para verificar se o codigo informado
+    ja esta armazenado.
+*/
+int insereOrdenado(Lista *li, CLIENTE cliente)
+{
+    if(li == NULL)
+    {
+        abortaPrograma();
+    }
+
+    ELEM *ant = NULL;
+    ELEM *atual = *li;
+
+    /*
+        Busca a posicao de insercao e verifica
+        se ja existe um codigo igual.
+    */
+    while(atual != NULL &&
+          atual->dados.codigo < cliente.codigo)
+    {
+        ant = atual;
+        atual = atual->prox;
+    }
+
+    /*
+        Codigo duplicado. O cliente nao e inserido.
+    */
+    if(atual != NULL &&
+       atual->dados.codigo == cliente.codigo)
+    {
+        return 0;
+    }
+
+    ELEM *no = (ELEM *) malloc(sizeof(ELEM));
+
+    if(no == NULL)
+    {
+        return 0;
+    }
+
+    no->dados = cliente;
+
+    /*
+        Insere na primeira posicao da lista.
+        Tambem resolve a insercao em lista vazia.
+    */
+    if(ant == NULL)
+    {
+        no->prox = *li;
+        *li = no;
+    }
+    else
+    {
+        /*
+            Insere depois do elemento anterior.
+        */
+        no->prox = ant->prox;
+        ant->prox = no;
+    }
+
+    return cliente.codigo;
+}
+
+
+/*
+    Remove o cliente que possui o codigo informado.
+
+    A busca pode terminar no inicio, no meio ou no
+    final da lista. Caso o codigo nao exista,
+    a funcao retorna zero.
+*/
+int removeOrdenado(Lista *li, int codigo)
+{
+    if(li == NULL)
+    {
+        abortaPrograma();
+    }
+
+    ELEM *ant = NULL;
+    ELEM *no = *li;
+
+    /*
+        Como a lista esta ordenada, a busca termina
+        quando encontra um codigo igual ou maior.
+    */
+    while(no != NULL &&
+          no->dados.codigo < codigo)
+    {
+        ant = no;
+        no = no->prox;
+    }
+
+    /*
+        O elemento nao foi encontrado.
+    */
+    if(no == NULL ||
+       no->dados.codigo != codigo)
+    {
+        return 0;
+    }
+
+    /*
+        Remove o primeiro elemento da lista.
+    */
+    if(ant == NULL)
+    {
+        *li = no->prox;
+    }
+    else
+    {
+        /*
+            Remove um elemento do meio ou do final.
+        */
+        ant->prox = no->prox;
+    }
+
+    free(no);
+
+    return codigo;
+}
+
+
+/*
+    Consulta um cliente pelo codigo.
+
+    Quando o cliente e encontrado, todos os dados
+    sao copiados para a estrutura recebida.
+*/
+int consultaCodigo(Lista *li, int codigo,
+                   CLIENTE *cliente)
+{
+    if(li == NULL)
+    {
+        abortaPrograma();
+    }
+
+    ELEM *no = *li;
+
+    /*
+        Como a lista esta ordenada, nao e necessario
+        continuar depois de um codigo maior.
+    */
+    while(no != NULL &&
+          no->dados.codigo < codigo)
+    {
+        no = no->prox;
+    }
+
+    if(no == NULL ||
+       no->dados.codigo != codigo)
+    {
+        return 0;
+    }
+
+    *cliente = no->dados;
+
+    return 1;
+}
+
+
+/*
+    Exibe todos os clientes armazenados na lista.
+*/
+void imprimeLista(Lista *li)
+{
+    if(li == NULL)
+    {
+        abortaPrograma();
+    }
+
+    ELEM *no = *li;
+
+    if(no == NULL)
+    {
+        printf("\nA lista de contatos esta vazia.\n");
+        return;
+    }
+
+    while(no != NULL)
+    {
+        printf("\n----------------------------------------");
+        printf("\nCodigo: %d", no->dados.codigo);
+        printf("\nNome: %s", no->dados.nome);
+        printf("\nEmpresa: %s", no->dados.empresa);
+        printf("\nDepartamento: %s",
+               no->dados.departamento);
+        printf("\nTelefone: %s", no->dados.telefone);
+        printf("\nCelular: %s", no->dados.celular);
+        printf("\nE-mail: %s", no->dados.email);
+        printf("\n----------------------------------------\n");
+
+        no = no->prox;
+    }
+}
+
+
+/*
+    Busca todos os clientes que possuem exatamente
+    o nome informado.
+
+    Como podem existir nomes repetidos, a funcao
+    percorre a lista inteira.
+*/
+int consultaNome(Lista *li, char nome[])
+{
+    if(li == NULL)
+    {
+        abortaPrograma();
+    }
+
+    int encontrou = 0;
+    ELEM *no = *li;
+
+    while(no != NULL)
+    {
+        if(strcmp(no->dados.nome, nome) == 0)
+        {
+            printf("\n----------------------------------------");
+            printf("\nCodigo: %d", no->dados.codigo);
+            printf("\nNome: %s", no->dados.nome);
+            printf("\nEmpresa: %s", no->dados.empresa);
+            printf("\nDepartamento: %s",
+                   no->dados.departamento);
+            printf("\nTelefone: %s", no->dados.telefone);
+            printf("\nCelular: %s", no->dados.celular);
+            printf("\nE-mail: %s", no->dados.email);
+            printf("\n----------------------------------------\n");
+
+            encontrou++;
+        }
+
+        no = no->prox;
+    }
+
+    return encontrou;
+}
+
+
+/*
+    Localiza um cliente pelo codigo e permite editar
+    seus campos. O codigo nao pode ser alterado.
+*/
+int editaCliente(Lista *li, int codigo)
+{
+    if(li == NULL)
+    {
+        abortaPrograma();
+    }
+
+    ELEM *no = *li;
+
+    while(no != NULL &&
+          no->dados.codigo < codigo)
+    {
+        no = no->prox;
+    }
+
+    if(no == NULL ||
+       no->dados.codigo != codigo)
+    {
+        return 0;
+    }
+
+    printf("\nNovo nome: ");
+    scanf(" %49[^\n]", no->dados.nome);
+
+    printf("Nova empresa: ");
+    scanf(" %49[^\n]", no->dados.empresa);
+
+    printf("Novo departamento: ");
+    scanf(" %49[^\n]", no->dados.departamento);
+
+    printf("Novo telefone: ");
+    scanf(" %19[^\n]", no->dados.telefone);
+
+    printf("Novo celular: ");
+    scanf(" %19[^\n]", no->dados.celular);
+
+    printf("Novo e-mail: ");
+    scanf(" %49[^\n]", no->dados.email);
+
+    return 1;
+}
+
+
+/*
+    Salva somente as estruturas CLIENTE.
+
+    A estrutura ELEM nao pode ser salva, pois possui
+    o ponteiro prox, cujo endereco so tem validade
+    durante a execucao atual do programa.
+*/
+int salvaLista(Lista *li)
+{
+    if(li == NULL)
+    {
+        abortaPrograma();
+    }
+
+    FILE *arquivo;
+    ELEM *no = *li;
+
+    arquivo = fopen("contatos.dat", "wb");
+
+    if(arquivo == NULL)
+    {
+        return 0;
+    }
+
+    while(no != NULL)
+    {
+        if(fwrite(&no->dados,
+                  sizeof(CLIENTE), 1, arquivo) != 1)
+        {
+            fclose(arquivo);
+            return 0;
+        }
+
+        no = no->prox;
+    }
+
+    fclose(arquivo);
+
+    return 1;
+}
+
+
+/*
+    Recupera as estruturas CLIENTE armazenadas no
+    arquivo binario e insere cada uma ordenadamente.
+*/
+int carregaLista(Lista *li)
+{
+    if(li == NULL)
+    {
+        abortaPrograma();
+    }
+
+    FILE *arquivo;
+    CLIENTE cliente;
+    int quantidade = 0;
+
+    arquivo = fopen("contatos.dat", "rb");
+
+    /*
+        Na primeira execucao, o arquivo ainda pode
+        nao existir. Isso nao representa erro fatal.
+    */
+    if(arquivo == NULL)
+    {
+        return 0;
+    }
+
+    while(fread(&cliente,
+                sizeof(CLIENTE), 1, arquivo) == 1)
+    {
+        if(insereOrdenado(li, cliente) != 0)
+        {
+            quantidade++;
+        }
+    }
+
+    fclose(arquivo);
+
+    return quantidade;
+}

@@ -1,0 +1,81 @@
+#ifndef LISTACONTATOS_H_INCLUDED
+#define LISTACONTATOS_H_INCLUDED
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+/* Estrutura que armazena os dados de um cliente */
+//typedef struct cliente
+{
+    int codigo;
+    char nome[50];
+    char empresa[50];
+    char departamento[50];
+    char telefone[20];
+    char celular[20];
+    char email[50];
+
+} CLIENTE;
+
+/* Ponteiro utilizado para representar a Lista Dinamica */
+typedef struct elemento* Lista;
+
+
+/* Cria a Lista Dinamica */
+Lista* criaLista();
+
+
+/* Aborta a execucao do programa */
+void abortaPrograma();
+
+
+/* Libera todos os elementos e a Lista Dinamica */
+void apagaLista(Lista* li);
+
+
+/* Retorna a quantidade de elementos da Lista */
+int tamanhoLista(Lista* li);
+
+
+/* Verifica se a Lista esta cheia */
+int listaCheia(Lista* li);
+
+
+/* Verifica se a Lista esta vazia */
+int listaVazia(Lista* li);
+
+
+/* Insere um cliente de forma ordenada pelo codigo */
+int insereOrdenado(Lista* li, CLIENTE cliente);
+
+
+/* Remove um cliente por meio do codigo */
+int removeOrdenado(Lista* li, int codigo);
+
+
+/* Consulta um cliente por meio do codigo */
+int consultaCodigo(Lista* li, int codigo, CLIENTE* cliente);
+
+
+/* Exibe todos os clientes armazenados na Lista */
+void imprimeLista(Lista* li);
+
+
+/* Busca e exibe todos os clientes que possuem o nome informado */
+int consultaNome(Lista* li, char nome[]);
+
+
+/* Edita os dados de um cliente, sem alterar o codigo */
+int editaCliente(Lista* li, int codigo);
+
+
+/* Salva os clientes da Lista em um arquivo binario */
+int salvaLista(Lista* li);
+
+
+/* Recupera os clientes armazenados no arquivo binario */
+int carregaLista(Lista* li);
+
+
+#endif  LISTACONTATOS_H_INCLUDED
